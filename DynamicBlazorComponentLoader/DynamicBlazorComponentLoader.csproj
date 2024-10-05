@@ -4,6 +4,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Dynamic Blazor Component Loader</Title>
+    <Authors>Carl Franklin</Authors>
+    <Company>App vNext, LLC</Company>
+    <Description>A .NET 8 Library that lets you replace Blazor Components (RCLs) in place at runtime.</Description>
+    <Copyright>Copyright © 2024 by App vNext, LLC</Copyright>
+    <RepositoryUrl>https://github.com/carlfranklin/DynamicBlazorComponentLoader</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
