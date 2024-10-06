@@ -60,9 +60,18 @@ public partial class VersionComponent : ComponentBase
 {
     protected string Message = string.Empty;
 
-    protected void Button_Click()
+    [Parameter]
+    public string Greeting { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> OnButtonClick { get; set; }
+
+    protected async void Button_Click()
     {
-        Message = $"Hello at {DateTime.Now.ToLongTimeString()}";
+        if (OnButtonClick.HasDelegate)
+        {
+            await OnButtonClick.InvokeAsync(Greeting);
+        }
     }
 }
 ```
@@ -82,7 +91,7 @@ In your demo app, add the following page:
 <div>
     @if (dynamicComponentType != null)
     {
-        <DynamicComponent Type="dynamicComponentType" />
+        <DynamicComponent Type="dynamicComponentType" Parameters="componentParameters" />
     }
     else
     {
@@ -90,11 +99,14 @@ In your demo app, add the following page:
     }
 </div>
 
+<p>@Message</p>
 @code {
-    
+
     // You can create one of these for each type of component you want to load
     private Type dynamicComponentType;
-    
+    private Dictionary<string, object> componentParameters;
+    private string Message { get; set; } = string.Empty;
+
     // This is the path where you can copy your Component DLLs.
     private string tempFolderPath = Path.Combine(AppContext.BaseDirectory, "TempDLLs");
 
@@ -122,6 +134,13 @@ In your demo app, add the following page:
         // Load the specific component type by its fully qualified name
         dynamicComponentType = Loader.LoadComponentType(tempFolderPath, dllPath, "MyRCL.VersionComponent");
 
+        // Set the parameters dynamically
+        componentParameters = new Dictionary<string, object>
+        {
+            { "Greeting", "Hello from dynamically loaded component!" },
+            { "OnButtonClick", EventCallback.Factory.Create<string>(this, HandleButtonClick) }
+        };
+
         // Force a UI refresh
         StateHasChanged();
     }
@@ -130,6 +149,11 @@ In your demo app, add the following page:
     {
         // This method is called when a file is copied to the temp folder
         await InvokeAsync(LoadComponents);
+    }
+
+    private void HandleButtonClick(string greeting)
+    {
+        Message = $"Button clicked with message: {greeting} at {DateTime.Now.ToLongTimeString()}";
     }
 }
 ```
