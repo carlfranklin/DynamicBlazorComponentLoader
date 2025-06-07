@@ -11,6 +11,7 @@
     <Description>A .NET Library that lets you replace Blazor Components (RCLs) in place at runtime.</Description>
     <Copyright>Copyright © 2024 by App vNext, LLC</Copyright>
     <RepositoryUrl>https://github.com/carlfranklin/DynamicBlazorComponentLoader</RepositoryUrl>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
