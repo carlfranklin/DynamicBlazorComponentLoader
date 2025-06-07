@@ -1,6 +1,6 @@
 # DynamicBlazorComponentLoader
 
-A .NET 8 Library for use in a .NET Blazor Web App with Server Interactivity that lets you replace Blazor Components (RCLs) in place at runtime.
+A .NET Library for use in a .NET Blazor Web App with Server Interactivity that lets you replace Blazor Components (RCLs) in place at runtime.
 
 ## Getting Started
 
