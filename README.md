@@ -1,15 +1,15 @@
 # DynamicBlazorComponentLoader
 
-A .NET Library for use in a .NET Blazor Web App with Server Interactivity that lets you replace Blazor Components (RCLs) in place at runtime.
+A .NET 10 class library for use in a Blazor Web App (with Server interactivity) that lets you replace Blazor Components (RCLs) in place at runtime.
 
 ## Getting Started
 
 To load this library you can:
 
-1. Download and add this class library project in your Blazor Server solution.
-2. Ingest the NuGet package into your Blazor Server project
+1. Download and add this class library project to your Blazor Web App solution.
+2. Add the NuGet package to your Blazor Web App project.
 
-Before you can configure the library, you must create a folder in your Blazor Server project where you want to copy updated Razor Class Library DLLs.
+Before you can configure the library, you must create a folder in your Blazor Web App project where you want to copy updated Razor Class Library DLLs.
 
 Let's assume that we've created one called **TempDLLs**.
 
@@ -76,7 +76,7 @@ public partial class VersionComponent : ComponentBase
 }
 ```
 
-If you want to test it, create this RCL project separate from your Blazor Server demo app.
+If you want to test it, create this RCL project separate from your Blazor Web App demo app.
 
 In your demo app, add the following page:
 
@@ -103,7 +103,7 @@ In your demo app, add the following page:
 @code {
 
     // You can create one of these for each type of component you want to load
-    private Type dynamicComponentType;
+    private Type? dynamicComponentType;
     private Dictionary<string, object> componentParameters;
     private string Message { get; set; } = string.Empty;
 
@@ -114,7 +114,7 @@ In your demo app, add the following page:
     {
         // Subscribe to the file change notification.
         // The folder monitored by the DllWatcher is defined in Program.cs
-        DllWatcher.OnDllChangedAction = ReloadComponent;
+        DllWatcher.OnDllChanged += ReloadComponent;
 
         // Initial load of the component
         LoadComponents();
