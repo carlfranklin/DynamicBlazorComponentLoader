@@ -12,6 +12,7 @@
     <Company>App vNext, LLC</Company>
     <Description>A .NET Library that lets you replace Blazor Components (RCLs) in place at runtime.</Description>
     <Copyright>Copyright © 2024 by App vNext, LLC</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/carlfranklin/DynamicBlazorComponentLoader</RepositoryUrl>
     <Version>1.1.0</Version>
   </PropertyGroup>
