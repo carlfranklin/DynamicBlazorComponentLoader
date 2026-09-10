@@ -1,34 +1,52 @@
 ﻿namespace DynamicBlazorComponentLoader;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+/// <summary>
+/// Watches a folder for new or changed DLL files and raises <see cref="OnDllChanged"/>
+/// when one is detected.
+/// </summary>
 public class DllWatcherService : IDisposable
 {
-    private FileSystemWatcher _watcher;
-    private DynamicComponentLoader _loader;
-    public Action OnDllChangedAction { get; set; }
+    private readonly FileSystemWatcher _watcher;
+    private readonly ILogger<DllWatcherService> _logger;
 
-    public DllWatcherService(DynamicComponentLoader loader, IOptions<DllWatcherOptions> options)
+    /// <summary>
+    /// Raised when a DLL file is created or changed in the watched folder.
+    /// </summary>
+    public event Action? OnDllChanged;
+
+    /// <summary>
+    /// Creates a new <see cref="DllWatcherService"/> that watches the folder
+    /// configured in <see cref="DllWatcherOptions.WatchPath"/>.
+    /// </summary>
+    /// <param name="options">Options providing the folder to watch.</param>
+    /// <param name="logger">Logger used to report detected changes.</param>
+    public DllWatcherService(IOptions<DllWatcherOptions> options, ILogger<DllWatcherService> logger)
     {
-        _loader = loader;
+        _logger = logger;
 
-        // Watch the TempDLLs folder
+        // Watch the configured folder directly for DLL files.
         string watchPath = options.Value.WatchPath;
 
-        _watcher = new FileSystemWatcher(Path.GetDirectoryName(watchPath))
+        _watcher = new FileSystemWatcher(watchPath)
         {
-            Filter = Path.GetFileName(watchPath),
-            NotifyFilter = NotifyFilters.LastWrite
+            Filter = "*.dll",
+            NotifyFilter = NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.LastWrite
         };
-        _watcher.Changed += OnDllChanged;
+        _watcher.Created += OnDllChangedHandler;
+        _watcher.Changed += OnDllChangedHandler;
         _watcher.EnableRaisingEvents = true;
     }
 
-    private void OnDllChanged(object sender, FileSystemEventArgs e)
+    private void OnDllChangedHandler(object sender, FileSystemEventArgs e)
     {
-        OnDllChangedAction?.Invoke();
+        _logger.LogDebug("Detected DLL change: {File}", e.FullPath);
+        OnDllChanged?.Invoke();
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         _watcher.Dispose();

@@ -1,5 +1,6 @@
 using DynamicBlazorComponentLoader;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace DynamicBlazorComponentLoader.Tests;
@@ -13,7 +14,7 @@ public class DynamicComponentLoaderTests
     [Fact]
     public void LoadComponentType_ReturnsComponentType_WhenDllContainsComponent()
     {
-        var loader = new DynamicComponentLoader();
+        var loader = new DynamicComponentLoader(NullLogger<DynamicComponentLoader>.Instance);
 
         var type = loader.LoadComponentType(NewTempFolder(), TestRclDllPath, "TestRCL.TestComponent");
 
@@ -25,7 +26,7 @@ public class DynamicComponentLoaderTests
     [Fact]
     public void LoadComponentType_ReturnsNull_WhenTypeNameNotFound()
     {
-        var loader = new DynamicComponentLoader();
+        var loader = new DynamicComponentLoader(NullLogger<DynamicComponentLoader>.Instance);
 
         var type = loader.LoadComponentType(NewTempFolder(), TestRclDllPath, "TestRCL.DoesNotExist");
 
@@ -35,7 +36,7 @@ public class DynamicComponentLoaderTests
     [Fact]
     public void LoadComponentType_ReturnsNull_WhenTypeIsNotAComponent()
     {
-        var loader = new DynamicComponentLoader();
+        var loader = new DynamicComponentLoader(NullLogger<DynamicComponentLoader>.Instance);
 
         var type = loader.LoadComponentType(NewTempFolder(), TestRclDllPath, "TestRCL.NotAComponent");
 
@@ -46,7 +47,7 @@ public class DynamicComponentLoaderTests
     public void LoadComponentType_Throws_WhenDllFileMissing()
     {
         // Characterization test: current behavior is to throw (File.ReadAllBytes).
-        var loader = new DynamicComponentLoader();
+        var loader = new DynamicComponentLoader(NullLogger<DynamicComponentLoader>.Instance);
 
         Assert.Throws<FileNotFoundException>(() =>
             loader.LoadComponentType(NewTempFolder(), Path.Combine(NewTempFolder(), "missing.dll"), "TestRCL.TestComponent"));
@@ -55,7 +56,7 @@ public class DynamicComponentLoaderTests
     [Fact]
     public void UnloadPreviousAssembly_DoesNotThrow_WhenNothingLoaded()
     {
-        var loader = new DynamicComponentLoader();
+        var loader = new DynamicComponentLoader(NullLogger<DynamicComponentLoader>.Instance);
 
         loader.UnloadPreviousAssembly();
     }
@@ -63,7 +64,7 @@ public class DynamicComponentLoaderTests
     [Fact]
     public void UnloadPreviousAssembly_DoesNotThrow_AfterLoad()
     {
-        var loader = new DynamicComponentLoader();
+        var loader = new DynamicComponentLoader(NullLogger<DynamicComponentLoader>.Instance);
         loader.LoadComponentType(NewTempFolder(), TestRclDllPath, "TestRCL.TestComponent");
 
         loader.UnloadPreviousAssembly();

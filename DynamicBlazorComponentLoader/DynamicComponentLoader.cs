@@ -1,10 +1,34 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
+
 namespace DynamicBlazorComponentLoader;
+
+/// <summary>
+/// Loads Blazor components (RCLs) from DLL files at runtime into a collectible
+/// <see cref="DynamicAssemblyLoadContext"/>, allowing them to be replaced in place.
+/// </summary>
 public class DynamicComponentLoader
 {
-    private DynamicAssemblyLoadContext _loadContext;
+    private readonly ILogger<DynamicComponentLoader> _logger;
+    private DynamicAssemblyLoadContext? _loadContext;
 
-    public Type LoadComponentType(string tempFolderPath, string dllPath, string componentName)
+    /// <summary>
+    /// Creates a new <see cref="DynamicComponentLoader"/>.
+    /// </summary>
+    /// <param name="logger">Logger used to report load and cleanup activity.</param>
+    public DynamicComponentLoader(ILogger<DynamicComponentLoader> logger)
+    {
+        _logger = logger;
+    }
+
+    /// <summary>
+    /// Loads a component type from a DLL file by its fully qualified type name.
+    /// </summary>
+    /// <param name="tempFolderPath">Folder used for temporary assembly files.</param>
+    /// <param name="dllPath">Path to the DLL to load.</param>
+    /// <param name="componentName">Fully qualified name of the component type to load.</param>
+    /// <returns>The component type, or <c>null</c> if it could not be found or is not a component.</returns>
+    public Type? LoadComponentType(string tempFolderPath, string dllPath, string componentName)
     {
         // Ensure the temp folder exists
         Directory.CreateDirectory(tempFolderPath);
@@ -25,14 +49,19 @@ public class DynamicComponentLoader
 
             if (componentType != null && typeof(ComponentBase).IsAssignableFrom(componentType))
             {
-                // Return the component type
+                _logger.LogDebug("Loaded component type {ComponentName} from {DllPath}", componentName, dllPath);
                 return componentType;
             }
+
+            _logger.LogDebug("Type {ComponentName} not found or is not a component in {DllPath}", componentName, dllPath);
         }
 
         return null;
     }
 
+    /// <summary>
+    /// Unloads the previously loaded assembly, if any.
+    /// </summary>
     public void UnloadPreviousAssembly()
     {
         if (_loadContext != null)
@@ -40,13 +69,13 @@ public class DynamicComponentLoader
             // Unload the previous assembly
             _loadContext.Unload();
             _loadContext = null;
-
-            // Force garbage collection to fully unload the assembly and free file handles
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
         }
     }
 
+    /// <summary>
+    /// Deletes any leftover DLL files from the temp folder.
+    /// </summary>
+    /// <param name="tempFolderPath">Folder containing temporary assembly files.</param>
     public void CleanUpOldAssemblies(string tempFolderPath)
     {
         if (Directory.Exists(tempFolderPath))
@@ -59,7 +88,7 @@ public class DynamicComponentLoader
                 }
                 catch (IOException ex)
                 {
-                    // Handle exceptions, maybe log the issue if needed
+                    _logger.LogDebug(ex, "Failed to delete old assembly {File}", file);
                 }
             }
         }

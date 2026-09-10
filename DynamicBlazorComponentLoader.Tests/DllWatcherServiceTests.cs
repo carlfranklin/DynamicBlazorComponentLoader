@@ -1,5 +1,6 @@
 using DynamicBlazorComponentLoader;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace DynamicBlazorComponentLoader.Tests;
@@ -23,8 +24,8 @@ public class DllWatcherServiceTests : IDisposable
         var watchPath = CreateWatchPath();
 
         using var service = new DllWatcherService(
-            new DynamicComponentLoader(),
-            Options.Create(new DllWatcherOptions { WatchPath = watchPath }));
+            Options.Create(new DllWatcherOptions { WatchPath = watchPath }),
+            NullLogger<DllWatcherService>.Instance);
 
         // Reaching here without an exception is the assertion.
     }
@@ -34,11 +35,11 @@ public class DllWatcherServiceTests : IDisposable
     {
         var watchPath = CreateWatchPath();
         var service = new DllWatcherService(
-            new DynamicComponentLoader(),
-            Options.Create(new DllWatcherOptions { WatchPath = watchPath }));
+            Options.Create(new DllWatcherOptions { WatchPath = watchPath }),
+            NullLogger<DllWatcherService>.Instance);
 
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        service.OnDllChangedAction = () => tcs.TrySetResult();
+        service.OnDllChanged += () => tcs.TrySetResult();
 
         File.Copy(Path.Combine(AppContext.BaseDirectory, "TestRCL.dll"), Path.Combine(watchPath, "TestRCL.dll"));
 
