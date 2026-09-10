@@ -49,11 +49,18 @@ public class DynamicComponentLoader
 
             if (componentType != null && typeof(ComponentBase).IsAssignableFrom(componentType))
             {
-                _logger.LogDebug("Loaded component type {ComponentName} from {DllPath}", componentName, dllPath);
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug("Loaded component type {ComponentName} from {DllPath}", componentName, dllPath);
+                }
+
                 return componentType;
             }
 
-            _logger.LogDebug("Type {ComponentName} not found or is not a component in {DllPath}", componentName, dllPath);
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                _logger.LogDebug("Type {ComponentName} not found or is not a component in {DllPath}", componentName, dllPath);
+            }
         }
 
         return null;
@@ -88,7 +95,10 @@ public class DynamicComponentLoader
                 }
                 catch (IOException ex)
                 {
-                    _logger.LogDebug(ex, "Failed to delete old assembly {File}", file);
+                    if (_logger.IsEnabled(LogLevel.Debug))
+                    {
+                        _logger.LogDebug(ex, "Failed to delete old assembly {File}", file);
+                    }
                 }
             }
         }

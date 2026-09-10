@@ -42,7 +42,11 @@ public class DllWatcherService : IDisposable
 
     private void OnDllChangedHandler(object sender, FileSystemEventArgs e)
     {
-        _logger.LogDebug("Detected DLL change: {File}", e.FullPath);
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Detected DLL change: {File}", e.FullPath);
+        }
+
         OnDllChanged?.Invoke();
     }
 
@@ -50,5 +54,6 @@ public class DllWatcherService : IDisposable
     public void Dispose()
     {
         _watcher.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
