@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# AI session memory files (local only, never commit)
+AI_CURRENT.md
+AI_MEMORY.md
+memory/
